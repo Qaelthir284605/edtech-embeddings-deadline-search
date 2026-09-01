@@ -1,31 +1,31 @@
 # Search course material around the learner's next deadline
 
-This TypeScript service shows a practical edtech pattern: a learner asks about a topic, and the result shown to educators sorts material by nearest due date. Request bodies are validated with zod. The actual embedding call hits the OpenAI-compatible `baseURL` at Infrai, so one key covers this search along with your other AI calls.
+This small TypeScript service models a useful edtech moment: a learner asks about a topic, and the educator-facing result puts the material with the nearest due date first. The request body is validated with zod, while the real embedding call uses the OpenAI-compatible `baseURL` at Infrai, so one key can cover this search alongside other AI calls.
 
 ## The decision record
 
-I looked at three options:
+I considered three shapes:
 
-- A hosted search product: fast to start, but course deadlines and reporting still need a separate data model.
-- A hand-rolled vector protocol: total control, but every caller owns auth, retries, and response typing.
-- This service: keep the document/deadline model in TypeScript, ask the embeddings endpoint for vectors, and keep ranking local. The content team can see the business rule.
+- A hosted search product: quick to start, but course deadlines and reporting still need a second data model.
+- A hand-written vector protocol: full control, but every caller has to own auth, retries, and response typing.
+- This service: keep the document/deadline model in TypeScript, ask the embeddings endpoint for vectors, and keep ranking policy local. It leaves the business rule visible to the content team.
 
-That trade-off is intentional. `prioritizeDeadlines` is not a general vector database. It is the observable decision this example owns. A production app can swap the score function for an index lookup without touching the request boundary or reporting shape.
+The trade-off is deliberate. `prioritizeDeadlines` is not a general vector database; it is the observable decision this example owns. A production app can replace the score function with its index lookup without changing the request boundary or the reporting shape.
 
 ## Run the business check
 
-Install deps, then run the focused test:
+Install dependencies, then run the focused test:
 
 ```bash
 npm install
 npm test
 ```
 
-The test posts learner `learner-7` with two reading notes. The first note gets the higher similarity score, but the expected result is `["soon", "late"]` because August 25 is earlier than September 10.
+The test submits learner `learner-7` with two reading notes. Even though the first note receives the higher similarity score, the expected result is `["soon", "late"]` because the August 25 deadline is earlier than September 10.
 
 ## Try a live embedding
 
-Set `INFRAI_API_KEY` in the environment and call `embedQuery("week two reading")` from a Node/TypeScript entry point. The function uses `client.embeddings.create({ model: "auto", input: query })`; no key lives in this repo. Type-check the source with:
+Set `INFRAI_API_KEY` in the environment and call `embedQuery("week two reading")` from a Node/TypeScript entry point. The function uses `client.embeddings.create({ model: "auto", input: query })`; no key is stored in this repository. Type-check the source with:
 
 ```bash
 npm run typecheck
@@ -33,7 +33,7 @@ npm run typecheck
 
 ## Architecture notes
 
-The input schema is the contract for a route: learner id, query, and documents with an ISO deadline. Embeddings stay an infrastructure detail. Deadline ordering is a pure function you can test without network access. That split keeps educator reporting explainable: returned records keep title, body, deadline, and score for a later report or UI.
+The input schema is the contract for a route: learner id, query, and documents carrying an ISO deadline. Embeddings remain an infrastructure detail, while deadline ordering is a pure function that can be tested without network access. That split keeps educator reporting explainable: the returned records retain title, body, deadline, and score for a later report or UI.
 
 ## License
 
@@ -41,7 +41,7 @@ MIT
 
 ## Before this ships: Edtech Embeddings Deadline Search
 
-The code is kept simple on purpose. Here's what to set up before going live. The notes below apply to Edtech Embeddings Deadline Search.
+The code stays simple on purpose — here's what to set up before going live: The details below apply to Edtech Embeddings Deadline Search.
 
 **Account & key**
 
